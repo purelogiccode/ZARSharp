@@ -111,7 +111,7 @@ MIT. The frozen reference sources it ports from (ZArchive, libzstd, zeekstd, Zar
 
 ### How do I contribute?
 
-Open an issue or PR on the [issue tracker](https://github.com/purelogiccode/CSharp_ZARSharp/issues). If you touch compression logic, keep byte parity: the parity tests and goldens in `ZARSharp.Tests/Goldens/` must stay green, and CI holds the line with no native toolchain installed.
+Open an issue or PR on the [issue tracker](https://github.com/purelogiccode/ZARSharp/issues). If you touch compression logic, keep byte parity: the parity tests and goldens in `ZARSharp.Tests/Goldens/` must stay green, and CI holds the line with no native toolchain installed.
 
 ### How are versions managed?
 
