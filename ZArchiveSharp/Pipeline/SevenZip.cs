@@ -58,7 +58,7 @@ public static class SevenZip
         }
 
         var dirs = searchDirectories ??
-            (Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator);
+                   (Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator);
         foreach (var dir in dirs)
         {
             string trimmed;
@@ -158,7 +158,7 @@ public static class SevenZip
                 continue;
             }
 
-            if (best == null || string.Compare(path, best, StringComparison.Ordinal) < 0)
+            if (best == null || string.CompareOrdinal(path, best) < 0)
             {
                 best = path;
             }
@@ -168,6 +168,8 @@ public static class SevenZip
     }
 
     /// <summary>Builds the 7z argument line: <c>x "archive" -o"dest" -y -bsp1</c>.</summary>
-    internal static string BuildArguments(string archivePath, string destDir) =>
-        $"x \"{archivePath}\" -o\"{destDir}\" -y -bsp1";
+    internal static string BuildArguments(string archivePath, string destDir)
+    {
+        return $"x \"{archivePath}\" -o\"{destDir}\" -y -bsp1";
+    }
 }

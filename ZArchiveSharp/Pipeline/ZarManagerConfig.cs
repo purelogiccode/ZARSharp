@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace ZArchiveSharp.Pipeline;
 
@@ -51,9 +50,10 @@ public sealed record ZarManagerConfig
         {
             var json = File.ReadAllText(path);
             return JsonSerializer.Deserialize(json, ZarConfigJsonContext.Default.ZarManagerConfig)
-                ?? new ZarManagerConfig();
+                   ?? new ZarManagerConfig();
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException or NotSupportedException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException
+                                       or NotSupportedException)
         {
             return new ZarManagerConfig();
         }
@@ -76,11 +76,14 @@ public sealed record ZarManagerConfig
     }
 
     /// <summary>Builds <see cref="ZarPipelineOptions"/> from worker/policy settings.</summary>
-    public ZarPipelineOptions ToPipelineOptions() => new()
+    public ZarPipelineOptions ToPipelineOptions()
     {
-        MaxDegreeOfParallelism = Workers,
-        CollisionPolicy = CollisionPolicy,
-    };
+        return new ZarPipelineOptions
+        {
+            MaxDegreeOfParallelism = Workers,
+            CollisionPolicy = CollisionPolicy,
+        };
+    }
 
     internal static string DefaultDirectory(string? overrideDirectory)
     {

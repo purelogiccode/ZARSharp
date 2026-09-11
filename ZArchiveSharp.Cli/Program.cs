@@ -1,4 +1,3 @@
-using ZArchiveSharp;
 using ZArchiveSharp.Pipeline;
 using ZArchiveSharp.Zstd;
 #if HAS_XISO
@@ -56,12 +55,14 @@ public static class Program
                     if (i + 1 < args.Length) outputPath = args[++i];
                     break;
                 case "--jobs" or "-j":
-                    if (i + 1 < args.Length && int.TryParse(args[++i], System.Globalization.CultureInfo.InvariantCulture, out int j)) jobs = j;
+                    if (i + 1 < args.Length && int.TryParse(args[++i],
+                            System.Globalization.CultureInfo.InvariantCulture, out int j)) jobs = j;
                     break;
                 case "--policy" or "-p":
                     if (i + 1 >= args.Length)
                     {
-                        Console.Error.WriteLine("Error: missing value for --policy (expected fail, skip, overwrite, auto-rename).");
+                        Console.Error.WriteLine(
+                            "Error: missing value for --policy (expected fail, skip, overwrite, auto-rename).");
                         return ZarchiveCli.BadUsage;
                     }
 
@@ -69,7 +70,13 @@ public static class Program
                     policyExplicit = true;
                     break;
                 case "--level" or "-l":
-                    if (i + 1 < args.Length && int.TryParse(args[++i], System.Globalization.CultureInfo.InvariantCulture, out int lv)) { level = lv; levelExplicit = true; }
+                    if (i + 1 < args.Length && int.TryParse(args[++i],
+                            System.Globalization.CultureInfo.InvariantCulture, out int lv))
+                    {
+                        level = lv;
+                        levelExplicit = true;
+                    }
+
                     break;
                 case "--dict":
                     if (i + 1 >= args.Length)
@@ -95,7 +102,8 @@ public static class Program
                 case "--mode":
                     if (i + 1 >= args.Length)
                     {
-                        Console.Error.WriteLine("Error: missing value for --mode (expected auto, extract-archive, extract-iso, compress).");
+                        Console.Error.WriteLine(
+                            "Error: missing value for --mode (expected auto, extract-archive, extract-iso, compress).");
                         return ZarchiveCli.BadUsage;
                     }
 
@@ -147,7 +155,8 @@ public static class Program
         };
         if (collisionPolicy == null)
         {
-            Console.Error.WriteLine($"Error: invalid --policy '{policy}' (expected fail, skip, overwrite, auto-rename).");
+            Console.Error.WriteLine(
+                $"Error: invalid --policy '{policy}' (expected fail, skip, overwrite, auto-rename).");
             return ZarchiveCli.BadUsage;
         }
 
@@ -205,7 +214,8 @@ public static class Program
         {
             if (!ZarProcessModes.TryParse(modeRaw, out processMode))
             {
-                Console.Error.WriteLine($"Error: invalid --mode '{modeRaw}' (expected auto, extract-archive, extract-iso, compress).");
+                Console.Error.WriteLine(
+                    $"Error: invalid --mode '{modeRaw}' (expected auto, extract-archive, extract-iso, compress).");
                 return ZarchiveCli.BadUsage;
             }
         }
@@ -266,7 +276,8 @@ public static class Program
         // Mode 2: Batch operations
         if (batch)
         {
-            return RunBatch(inputPath, outputPath, jobs, collisionPolicy.Value, level, quiet, compressor, dictionary, checksum, processMode, deleteSource, sevenZipRaw);
+            return RunBatch(inputPath, outputPath, jobs, collisionPolicy.Value, level, quiet, compressor, dictionary,
+                checksum, processMode, deleteSource, sevenZipRaw);
         }
 
         // Mode 3: Standard pack/extract (zarchive.exe compat)
@@ -302,8 +313,8 @@ public static class Program
         string[] zstdArgs, int level, string? dictPath, bool checksum, bool quiet, bool stdoutFlag)
     {
         if (!ZstdCli.TryParse(zstdArgs, out var job, out string? parseError,
-            defaultLevel: level, defaultDictPath: dictPath, defaultChecksum: checksum,
-            defaultQuiet: quiet, defaultStdout: stdoutFlag))
+                defaultLevel: level, defaultDictPath: dictPath, defaultChecksum: checksum,
+                defaultQuiet: quiet, defaultStdout: stdoutFlag))
         {
             Console.Error.WriteLine($"Error: {parseError}");
             Console.Error.WriteLine(ZstdCli.UsageText);
@@ -315,10 +326,18 @@ public static class Program
         // the global --help it goes to stdout.
         Action<string>? log = job!.Quiet && !job.ShowHelp
             ? null
-            : job.ShowHelp || job.OutputPath is not null ? Console.WriteLine : Console.Error.WriteLine;
+            : job.ShowHelp || job.OutputPath is not null
+                ? Console.WriteLine
+                : Console.Error.WriteLine;
 
         using var cts = new CancellationTokenSource();
-        ConsoleCancelEventHandler? handler = (_, e) => { e.Cancel = true; cts.Cancel(); };
+        // Safe: unsubscribed in finally before cts is disposed at scope end.
+        // ReSharper disable once AccessToDisposedClosure
+        ConsoleCancelEventHandler handler = (_, e) =>
+        {
+            e.Cancel = true;
+            cts.Cancel();
+        };
         Console.CancelKeyPress += handler;
         try
         {
@@ -345,13 +364,14 @@ public static class Program
         // this subcommand is a usage error, not a silent ignore.
         if (dictPath != null)
         {
-            Console.Error.WriteLine("Error: --dict is not supported with 'zar seekable' (seekable frames carry no dictionary).");
+            Console.Error.WriteLine(
+                "Error: --dict is not supported with 'zar seekable' (seekable frames carry no dictionary).");
             return ZarchiveCli.BadUsage;
         }
 
         if (!SeekableCli.TryParse(seekableArgs, out var job, out string? parseError,
-            defaultLevel: levelExplicit ? globalLevel : 3, defaultChecksum: checksumOverride,
-            defaultQuiet: quiet, defaultStdout: stdoutFlag))
+                defaultLevel: levelExplicit ? globalLevel : 3, defaultChecksum: checksumOverride,
+                defaultQuiet: quiet, defaultStdout: stdoutFlag))
         {
             Console.Error.WriteLine($"Error: {parseError}");
             Console.Error.WriteLine(SeekableCli.UsageText);
@@ -372,7 +392,13 @@ public static class Program
         };
 
         using var cts = new CancellationTokenSource();
-        ConsoleCancelEventHandler? handler = (_, e) => { e.Cancel = true; cts.Cancel(); };
+        // Safe: unsubscribed in finally before cts is disposed at scope end.
+        // ReSharper disable once AccessToDisposedClosure
+        ConsoleCancelEventHandler handler = (_, e) =>
+        {
+            e.Cancel = true;
+            cts.Cancel();
+        };
         Console.CancelKeyPress += handler;
         try
         {
@@ -459,7 +485,8 @@ public static class Program
             long isoOffset = XgdTables.XisoOffset[xsType];
             if (!quiet)
             {
-                string video = videoType >= 0 ? videoType.ToString(System.Globalization.CultureInfo.InvariantCulture) : "unknown (assuming 0)";
+                string video =
+ videoType >= 0 ? videoType.ToString(System.Globalization.CultureInfo.InvariantCulture) : "unknown (assuming 0)";
                 Console.WriteLine($"Redump ISO detected (type {redumpType}, video {video}); game partition at 0x{isoOffset:X}.");
             }
 
@@ -492,7 +519,7 @@ public static class Program
 
 #if !HAS_XISO
         error = "unavailable: this build of zar was compiled without XISOSharp support. " +
-            "Clone https://github.com/purelogiccode/XISOSharp.git as a sibling 'CSharp_XISOSharp' directory and rebuild for XISO support.";
+                "Clone https://github.com/purelogiccode/XISOSharp.git as a sibling 'CSharp_XISOSharp' directory and rebuild for XISO support.";
         return false;
 #else
         // Redump ISOs start with the video partition: the XISO game partition
@@ -511,7 +538,8 @@ public static class Program
 
         try
         {
-            bool ok = XisoZarchive.CreateZar(isoPath, destZar, isoOffset, quiet: quiet, compressor: comp, progress: progress);
+            bool ok =
+ XisoZarchive.CreateZar(isoPath, destZar, isoOffset, quiet: quiet, compressor: comp, progress: progress);
             if (!quiet) Console.WriteLine();
             if (ok)
             {
@@ -530,7 +558,8 @@ public static class Program
 #endif
     }
 
-    private static int PackIso(string isoPath, string? zarPath, int level, bool quiet, IZarBlockCompressor? compressor, ZstdDictionary? dictionary)
+    private static int PackIso(string isoPath, string? zarPath, int level, bool quiet, IZarBlockCompressor? compressor,
+        ZstdDictionary? dictionary)
     {
         if (!File.Exists(isoPath))
         {
@@ -539,8 +568,10 @@ public static class Program
         }
 
 #if !HAS_XISO
-        Console.Error.WriteLine("Error: --iso is unavailable: this build of zar was compiled without XISOSharp support.");
-        Console.Error.WriteLine("Clone https://github.com/purelogiccode/XISOSharp.git as a sibling 'CSharp_XISOSharp' directory and rebuild for XISO support.");
+        Console.Error.WriteLine(
+            "Error: --iso is unavailable: this build of zar was compiled without XISOSharp support.");
+        Console.Error.WriteLine(
+            "Clone https://github.com/purelogiccode/XISOSharp.git as a sibling 'CSharp_XISOSharp' directory and rebuild for XISO support.");
         return ZarchiveCli.BadUsage;
 #else
         string output = zarPath ?? DeriveZarPath(isoPath);
@@ -602,14 +633,17 @@ public static class Program
             DeleteSourceOnSuccess = deleteSource,
         };
 
-        var progress = quiet ? null : new Progress<ZarProgress>(p =>
-        {
-            if (p.Operation == ZarOperation.Pack)
+        var progress = quiet
+            ? null
+            : new Progress<ZarProgress>(p =>
             {
-                double pct = p.Ratio * 100;
-                Console.Write($"\r  [{p.FilesCompleted}/{p.FilesTotal}] {pct:F1}% {Path.GetFileName(p.SourcePath)}");
-            }
-        });
+                if (p.Operation == ZarOperation.Pack)
+                {
+                    double pct = p.Ratio * 100;
+                    Console.Write(
+                        $"\r  [{p.FilesCompleted}/{p.FilesTotal}] {pct:F1}% {Path.GetFileName(p.SourcePath)}");
+                }
+            });
 
         try
         {
@@ -709,14 +743,15 @@ public static class Program
     {
         var list = isos.ToList();
         var results = new ZarItemResult?[list.Count];
-        System.Threading.Tasks.Parallel.For(0, list.Count,
-            new System.Threading.Tasks.ParallelOptions
+        Parallel.For(0, list.Count,
+            new ParallelOptions
             {
                 MaxDegreeOfParallelism = Math.Min(Math.Max(1, options.MaxDegreeOfParallelism), Math.Max(1, list.Count)),
             },
             i => results[i] = PackIsoOne(list[i], destDir, options, level, compressor, dictionary, progress));
         return results.Select((r, i) => r ??
-            new ZarItemResult(list[i], null, ZarItemStatus.Cancelled, "Cancelled before start.")).ToList();
+                                        new ZarItemResult(list[i], null, ZarItemStatus.Cancelled,
+                                            "Cancelled before start.")).ToList();
     }
 
     private static ZarItemResult PackIsoOne(string iso, string destDir, ZarPipelineOptions options,
@@ -748,7 +783,8 @@ public static class Program
         {
             return new ZarItemResult(iso, dest, ZarItemStatus.Cancelled, ex.Message);
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException or ArgumentException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException
+                                       or ArgumentException)
         {
             // Batch isolation like ZarPipeline.PackOne: log the item, run the rest.
             return new ZarItemResult(iso, dest, ZarItemStatus.Failed, ex.Message);
@@ -772,15 +808,16 @@ public static class Program
     {
         var list = archives.ToList();
         var results = new ZarItemResult?[list.Count];
-        System.Threading.Tasks.Parallel.For(0, list.Count,
-            new System.Threading.Tasks.ParallelOptions
+        Parallel.For(0, list.Count,
+            new ParallelOptions
             {
                 MaxDegreeOfParallelism = Math.Min(Math.Max(1, jobs), Math.Max(1, list.Count)),
             },
             i => results[i] = ProcessArchiveOne(list[i], destDir, options, mode, level,
                 quiet, compressor, dictionary, sevenZipPath, progress));
         return results.Select((r, i) => r ??
-            new ZarItemResult(list[i], null, ZarItemStatus.Cancelled, "Cancelled before start.")).ToList();
+                                        new ZarItemResult(list[i], null, ZarItemStatus.Cancelled,
+                                            "Cancelled before start.")).ToList();
     }
 
     private static ZarItemResult ProcessArchiveOne(string archive, string destDir, ZarPipelineOptions options,
@@ -806,8 +843,10 @@ public static class Program
             }
 
             if (!quiet) Console.WriteLine($"Extracting archive: {archive}");
-            IProgress<double>? sevenProgress = quiet ? null : new Progress<double>(ratio =>
-                Console.Write($"\r  {ratio * 100:F1}% {stem}"));
+            IProgress<double>? sevenProgress = quiet
+                ? null
+                : new Progress<double>(ratio =>
+                    Console.Write($"\r  {ratio * 100:F1}% {stem}"));
             SevenZip.Extract(archive, temp, tool, sevenProgress, options.Pause);
             if (!quiet) Console.WriteLine();
 
@@ -864,17 +903,24 @@ public static class Program
             if (isIso)
             {
                 return PackIsoOne(current, destDir, options, level, compressor, dictionary, progress)
-                    with { SourcePath = archive };
+                    with
+                    {
+                        SourcePath = archive
+                    };
             }
 
             return ZarPipeline.PackBatch([current], destDir, options, progress)[0]
-                with { SourcePath = archive };
+                with
+                {
+                    SourcePath = archive
+                };
         }
         catch (OperationCanceledException ex)
         {
             return new ZarItemResult(archive, null, ZarItemStatus.Cancelled, ex.Message);
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException or ArgumentException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidOperationException
+                                       or ArgumentException)
         {
             return new ZarItemResult(archive, null, ZarItemStatus.Failed, ex.Message);
         }

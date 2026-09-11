@@ -12,7 +12,7 @@ namespace ZArchiveSharp.Pipeline;
 /// drive 7z / extract-xiso stages; ZAR pack/extract itself runs in-process
 /// via <see cref="ZarPipeline"/>.
 /// </summary>
-public static partial class ProcessRunner
+public static class ProcessRunner
 {
     private static readonly TimeSpan ProgressInterval = TimeSpan.FromMilliseconds(100);
 
@@ -58,7 +58,8 @@ public static partial class ProcessRunner
         catch (System.ComponentModel.Win32Exception ex)
         {
             throw new FileNotFoundException(
-                $"Required tool not found or blocked by antivirus (allow-list it and retry): {fileName} ({ex.Message})", ex);
+                $"Required tool not found or blocked by antivirus (allow-list it and retry): {fileName} ({ex.Message})",
+                ex);
         }
 
         string? lastLine = null;
@@ -195,7 +196,7 @@ public static partial class ProcessRunner
             }
         }
         catch (Exception ex) when (ex is InvalidOperationException or System.ComponentModel.Win32Exception
-            or NotSupportedException)
+                                       or NotSupportedException)
         {
             /* best effort */
         }
