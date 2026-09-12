@@ -21,6 +21,11 @@ string? path = ZarPipeline.Pack(
     progress: new Progress<ZarProgress>(p => Console.WriteLine($"{p.Ratio:P1}")));
 ```
 
+The source is validated and collected *before* the output is resolved, so an
+`Overwrite` policy cannot delete a previous archive when the pack cannot even
+start (missing/unreadable source). With `DeleteSourceOnSuccess`, the source is
+removed only after the archive was written successfully.
+
 ### Extract
 
 ```csharp
@@ -116,7 +121,7 @@ pauseSource.Resume();
 cts.Cancel();
 ```
 
-Cancellation deletes incomplete pack outputs (the `zarchive.exe` delete-incomplete-output contract).
+Cancellation deletes incomplete pack outputs (the `zarchive.exe` delete-incomplete-output contract). `PauseTokenSource` is `IDisposable` (since v1.2.0): dispose it after the workers have stopped, while no `PauseToken` obtained from it can still be waited on.
 
 ## Collision Policies
 
@@ -130,6 +135,13 @@ What happens when an output path already exists:
 | `AutoRename` | Write to `{stem}_{n}{suffix}`, first free `n` from 1 |
 
 Port of ZarManager's `CollisionPolicy` (`SKIP` / `OVERWRITE` / `AUTO-RENAME`), plus `Fail` for the native CLI contract.
+
+Resolution is race-safe: parallel batch items (or other processes) can claim
+the chosen name between resolve and write/move, so the pack and move paths
+re-resolve from the *requested* path and retry, keeping `AutoRename` suffixes
+canonical (`game.zar`, `game_1.zar`, …) instead of compounding. `Fail`-policy
+collisions throw `IOException` prefixed with `ZarPackEngine.OutputExistsMessage`
+(batch callers map a batch whose only failures are these to exit `-11`).
 
 ## Batch Operations
 
@@ -182,6 +194,29 @@ var results = ZarPipeline.ExtractBatch(
     destRoot: @"C:\extracted",
     options: options);
 ```
+
+Same-stem archives (`a\game.zar`, `b\game.zar`) are given unique destinations
+within the batch (`game_extracted`, `game_extracted_1`, …) so parallel items
+never extract over each other.
+
+### Extraction Safety
+
+`ZarPackEngine` treats archive entry names as untrusted:
+
+- names must be single plain components — `..`, separators, rooted or
+  drive-qualified paths, and Windows reserved device names are rejected
+  (`InvalidOperationException`);
+- the resolved destination path is re-validated against the extraction root
+  (zip-slip defense in depth);
+- nesting deeper than `ZarPackEngine.MaxExtractDepth` (1024) fails catchably
+  instead of risking a stack overflow;
+- each file is written through a unique `.part` scratch file and moved into
+  place only after the byte-count check, so disk-full, corruption, or
+  cancellation never leaves a truncated file that looks complete.
+
+Packing never descends directory symlinks/junctions (reparse points): the
+link itself is archived as an empty directory entry, so a tree cannot loop
+forever or pull in content from outside the source root.
 
 ### Batch Requests
 
@@ -262,4 +297,4 @@ Where native behavior is a bug, ZArchiveSharp deviates (all tested):
 
 ## ProcessRunner
 
-`ProcessRunner` is the port of ZarManager's `_run_cmd` — the seam for external tools (e.g., 7z): `(\d+)%` progress parsing with a 10 FPS throttle, exit 0/1 treated as ok, anything else throws with the last output line, `WinError 740` mapped to an elevation message, missing binaries get an AV-hint. Cancellation kills the process tree.
+`ProcessRunner` is the port of ZarManager's `_run_cmd` — the seam for external tools (e.g., 7z): `(\d+)%` progress parsing with a 10 FPS throttle, exit 0/1 treated as ok, anything else throws with the last output line, `WinError 740` mapped to an elevation message, missing binaries get an AV-hint. Since v1.2.0 stderr is drained after exit (a late-only failure line is still reported) and the child is polled, so one that closed stdout but keeps running is killed on cancellation.
