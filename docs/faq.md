@@ -123,7 +123,7 @@ The archive is corrupt or the I/O failed mid-extract. Extraction lines printed b
 
 ### What is the license?
 
-MIT. The frozen reference sources it ports from (ZArchive, libzstd, zeekstd, ZarManager) are used as specification/oracle only; see [LICENSE](../LICENSE).
+MIT. The frozen reference sources it ports from (ZArchive, libzstd, zeekstd, ZarManager) are used as specification/oracle only; see [LICENSE](https://github.com/purelogiccode/ZArchiveSharp/blob/master/LICENSE).
 
 ### How do I contribute?
 
