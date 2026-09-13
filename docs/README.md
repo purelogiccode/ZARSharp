@@ -46,7 +46,7 @@ ZArchiveSharp is a pure-C# port of the [ZArchive 0.1.2](https://github.com/unkno
 | **Unsafe code** | None in the zstd path |
 | **Trimmable** | Yes |
 | **AOT compatible** | Yes |
-| **License** | MIT |
+| **License** | [Non-commercial](../LICENSE) (derivative of ZarManager 1.2.0) |
 
 ### Byte-Identity Guarantee
 

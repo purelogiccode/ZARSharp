@@ -139,4 +139,10 @@ NuGet. See `.github/workflows/ci.yml`. Per-release highlights live in
 
 ## License
 
-MIT — see [LICENSE](../LICENSE).
+**Non-commercial** — see [LICENSE](../LICENSE). ZArchiveSharp is a derivative
+work of ZarManager 1.2.0 and incorporates permissively licensed components;
+their notices are listed in
+[THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md). Commercial use, selling,
+and use in commercial applications or products are prohibited without prior
+written consent. The v1.2.0 package was published under MIT; releases after
+v1.2.0 use this license.

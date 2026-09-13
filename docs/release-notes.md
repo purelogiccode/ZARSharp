@@ -5,6 +5,13 @@ from `v`-prefixed git tags via MinVer; the library and CLI release together.
 The detailed notes for the current release live in
 [WhatsNew.md](https://github.com/purelogiccode/ZArchiveSharp/blob/master/WhatsNew.md).
 
+> **License change (after v1.2.0):** ZArchiveSharp is now distributed under
+> the [ZArchiveSharp Non-Commercial License](https://github.com/purelogiccode/ZArchiveSharp/blob/master/LICENSE)
+> because its pipeline layer is a port of ZarManager 1.2.0, whose license
+> permits non-commercial use only. The v1.2.0 NuGet packages were published
+> under MIT; later releases use the non-commercial license. Third-party
+> notices: [THIRD-PARTY-NOTICES.md](https://github.com/purelogiccode/ZArchiveSharp/blob/master/THIRD-PARTY-NOTICES.md).
+
 ## v1.2.0
 
 **Highlights**

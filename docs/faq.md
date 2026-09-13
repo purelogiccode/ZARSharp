@@ -123,11 +123,19 @@ The archive is corrupt or the I/O failed mid-extract. Extraction lines printed b
 
 ### What is the license?
 
-MIT. The frozen reference sources it ports from (ZArchive, libzstd, zeekstd, ZarManager) are used as specification/oracle only; see [LICENSE](https://github.com/purelogiccode/ZArchiveSharp/blob/master/LICENSE).
+**Non-commercial.** ZArchiveSharp is a derivative work of ZarManager 1.2.0
+(non-commercial license) and incorporates permissively licensed components
+(ZArchive/libzstd/zeekstd/seekable-zstd), whose notices are in
+[THIRD-PARTY-NOTICES.md](https://github.com/purelogiccode/ZArchiveSharp/blob/master/THIRD-PARTY-NOTICES.md).
+Commercial use, selling, and use in commercial applications or products are
+prohibited without prior written consent; see
+[LICENSE](https://github.com/purelogiccode/ZArchiveSharp/blob/master/LICENSE).
+The v1.2.0 packages were published under MIT; releases after v1.2.0 use the
+non-commercial license.
 
 ### How do I contribute?
 
-Open an issue or PR on the [issue tracker](https://github.com/purelogiccode/ZArchiveSharp/issues). If you touch compression logic, keep byte parity: the parity tests and goldens in `ZArchiveSharp.Tests/Goldens/` must stay green, and CI holds the line with no native toolchain installed.
+Open an issue or PR on the [issue tracker](https://github.com/purelogiccode/ZArchiveSharp/issues); contributions are accepted under the project's non-commercial license. If you touch compression logic, keep byte parity: the parity tests and goldens in `ZArchiveSharp.Tests/Goldens/` must stay green, and CI holds the line with no native toolchain installed.
 
 ### How are versions managed?
 
