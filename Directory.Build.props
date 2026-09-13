@@ -28,7 +28,7 @@
     <RepositoryUrl>https://github.com/purelogiccode/ZArchiveSharp</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryBranch>master</RepositoryBranch>
-    <PackageReleaseNotes>v1.2.2: CLI help, usage and --version name the executable they were launched as (ZArchiveSharp bundles vs the zar tool); Windows application icon and product metadata; MinVer spans every project so the tag stamps the whole solution; standalone framework-dependent win/linux/osx x64+arm64 release bundles. LICENSE: releases since v1.2.1 are under the ZArchiveSharp Non-Commercial License (ZarManager 1.2.0 derivative, non-commercial use only); the v1.2.0 packages were MIT. See WhatsNew.md.</PackageReleaseNotes>
+    <PackageReleaseNotes>v1.3.0: mount-friendly reader API (node-handle directory walks, canonical names, seekable per-entry streams, archive stats); ZArchiveOpenFailure with specific reasons and TryOpen overloads; ZArchiveReaderOptions (CacheBlockCount, DecodeExtendedNames, FileShare); parallel block decode. Fixes: extraction rejects crafted directory child ranges, InvalidPath for null/empty/invalid paths, saturating TotalUncompressedSize. LICENSE: releases since v1.2.1 are under the ZArchiveSharp Non-Commercial License (ZarManager 1.2.0 derivative, non-commercial use only); the v1.2.0 packages were MIT. See WhatsNew.md.</PackageReleaseNotes>
   </PropertyGroup>
 
   <!-- Tag-driven versioning for every project in the solution: MinVer reads
